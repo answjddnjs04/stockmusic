@@ -260,10 +260,7 @@ a.btn {
     text-decoration: none;
 }
     </style>
-    <!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- 인증 모듈 -->
-<script src="auth.js"></script>
+
 </head>
 <body>
     <div class="header">
@@ -359,79 +356,342 @@ a.btn {
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
+        console.log('🔧 스크립트 로딩 시작...');
+        
         // ⚠️ 실제 개발 시에는 환경변수로 관리해주세요!
-const SUPABASE_URL = 'https://aoejmmcbrrcsievldbxi.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvZWptbWNicnJjc2lldmxkYnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MjcwNDQsImV4cCI6MjA3MzMwMzA0NH0.7d86lw9ABAn6G_cXvXjpdoOlqtW8K3FVCR43w70q4eY';
+        const SUPABASE_URL = 'https://aoejmmcbrrcsievldbxi.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvZWptbWNicnJjc2lldmxkYnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MjcwNDQsImV4cCI6MjA3MzMwMzA0NH0.7d86lw9ABAn6G_cXvXjpdoOlqtW8K3FVCR43w70q4eY';
 
-// Supabase 클라이언트 초기화
-let supabase;
+        // 전역 변수
+        let supabase;
+        window.currentUser = null;
+        
+        // 인증 모드 (auth.js에서 사용)
+        let isLogin = true;
 
-// 전역 변수
-window.currentUser = null;
+        // 알림 표시 함수
+        function showNotification(type, message) {
+            console.log(`📢 알림: [${type}] ${message}`);
+            const notification = document.getElementById('notification');
+            if (notification) {
+                notification.className = `notification ${type}`;
+                notification.innerHTML = message;
+                notification.style.display = 'block';
 
-// 설정 확인 및 초기화
-if (SUPABASE_URL === 'YOUR_SUPABASE_URL_HERE' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY_HERE') {
-    showNotification('error', '⚠️ Supabase 설정이 필요합니다! SUPABASE_URL과 SUPABASE_ANON_KEY를 입력해주세요.');
-} else {
-    try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase 연결 성공!');
-        showNotification('success', '✅ Supabase 연결 완료!');
-    } catch (error) {
-        console.error('❌ Supabase 연결 실패:', error);
-        showNotification('error', '❌ Supabase 연결 실패: ' + error.message);
-    }
-}
-
-// 페이지 로드 시 실행
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 페이지 로드 완료');
-    console.log('🔍 Supabase 상태:', !!supabase);
-    
-    if (supabase) {
-        console.log('✅ Supabase 연결됨, 사용자 확인 중...');
-        checkUser(supabase, 
-            () => showDashboard(supabase, showNotification), 
-            showAuthForm
-        );
-        setupAuthForm(supabase, showNotification, 
-            () => showDashboard(supabase, showNotification)
-        );
-    } else {
-        console.log('❌ Supabase 연결 안됨, 인증 폼 표시');
-        showAuthForm();
-    }
-});
-
-// 알림 표시 함수
-function showNotification(type, message) {
-    const notification = document.getElementById('notification');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = message;
-    notification.style.display = 'block';
-
-    // 5초 후 자동 숨김
-    setTimeout(() => {
-        notification.style.display = 'none';
-    }, 5000);
-}
-
-// 로그아웃 함수 (전역으로 유지)
-function logoutUser() {
-    logout(supabase, showNotification, showAuthForm);
-}
-
-// Supabase Auth 상태 변화 감지
-if (supabase) {
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN') {
-            window.currentUser = session.user;
-            showDashboard(supabase, showNotification);
-        } else if (event === 'SIGNED_OUT') {
-            window.currentUser = null;
-            showAuthForm();
+                // 5초 후 자동 숨김
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 5000);
+            }
         }
-    });
-}
+
+        // 토글 함수 (전역으로 이동)
+        function toggleAuthMode() {
+            console.log('🔄 인증 모드 토글:', isLogin ? '회원가입으로' : '로그인으로');
+            isLogin = !isLogin;
+            
+            const authTitle = document.getElementById('authTitle');
+            const authButton = document.getElementById('authButton');
+            const authSwitchText = document.getElementById('authSwitchText');
+            const authSwitchLink = document.getElementById('authSwitchLink');
+            const usernameGroup = document.getElementById('usernameGroup');
+            const usernameField = document.getElementById('username');
+            
+            if (isLogin) {
+                authTitle.textContent = '로그인';
+                authButton.textContent = '로그인';
+                authSwitchText.textContent = '계정이 없으신가요?';
+                authSwitchLink.textContent = '회원가입';
+                usernameGroup.style.display = 'none';
+                usernameField.required = false;
+                usernameField.value = '';
+            } else {
+                authTitle.textContent = '회원가입';
+                authButton.textContent = '회원가입';
+                authSwitchText.textContent = '이미 계정이 있으신가요?';
+                authSwitchLink.textContent = '로그인';
+                usernameGroup.style.display = 'block';
+                usernameField.required = true;
+            }
+            
+            console.log('✅ 인증 모드 변경 완료:', isLogin ? '로그인' : '회원가입');
+        }
+
+        // 로그아웃 함수
+        function logoutUser() {
+            logout(supabase, showNotification, showAuthForm);
+        }
+
+        // Supabase 초기화
+        function initializeSupabase() {
+            console.log('🔧 Supabase 초기화 중...');
+            
+            if (SUPABASE_URL === 'YOUR_SUPABASE_URL_HERE' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY_HERE') {
+                showNotification('error', '⚠️ Supabase 설정이 필요합니다!');
+                return false;
+            }
+
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('✅ Supabase 연결 성공!');
+                showNotification('success', '✅ Supabase 연결 완료!');
+                
+                // Auth 상태 변화 감지
+                supabase.auth.onAuthStateChange((event, session) => {
+                    console.log('🔐 Auth 상태 변화:', event, !!session);
+                    if (event === 'SIGNED_IN') {
+                        window.currentUser = session.user;
+                        showDashboard();
+                    } else if (event === 'SIGNED_OUT') {
+                        window.currentUser = null;
+                        showAuthForm();
+                    }
+                });
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Supabase 연결 실패:', error);
+                showNotification('error', '❌ Supabase 연결 실패: ' + error.message);
+                return false;
+            }
+        }
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 DOM 로드 완료');
+            
+            // Supabase 초기화
+            const supabaseReady = initializeSupabase();
+            
+            if (supabaseReady) {
+                console.log('✅ 인증 시스템 초기화 중...');
+                await checkUser();
+                setupAuthForm();
+            } else {
+                console.log('❌ Supabase 초기화 실패, 인증 폼 표시');
+                showAuthForm();
+            }
+        });
+    </script>
+    
+    <!-- auth.js를 인라인으로 포함 -->
+    <script>
+        // 인증 폼 설정
+        function setupAuthForm() {
+            console.log('🔧 setupAuthForm 호출됨');
+            
+            const authForm = document.getElementById('authForm');
+            const authButton = document.getElementById('authButton');
+            
+            if (!authForm || !authButton) {
+                console.error('❌ 폼 요소를 찾을 수 없습니다:', { authForm: !!authForm, authButton: !!authButton });
+                return;
+            }
+
+            // 기존 이벤트 리스너 제거 (중복 방지)
+            authForm.removeEventListener('submit', handleFormSubmit);
+            authForm.addEventListener('submit', handleFormSubmit);
+            
+            console.log('✅ 폼 이벤트 리스너 등록 완료');
+        }
+
+        // 폼 제출 핸들러 (별도 함수로 분리)
+        async function handleFormSubmit(e) {
+            console.log('📝 폼 제출 이벤트 발생!');
+            
+            // 페이지 새로고침 방지
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const authButton = document.getElementById('authButton');
+            
+            if (!supabase) {
+                console.error('❌ Supabase가 연결되지 않았습니다.');
+                showNotification('error', 'Supabase가 연결되지 않았습니다.');
+                return;
+            }
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const username = document.getElementById('username').value.trim();
+
+            console.log('📧 입력값 확인:', { 
+                email: email ? '입력됨' : '비어있음', 
+                password: password ? '입력됨' : '비어있음',
+                username: username ? '입력됨' : '비어있음',
+                isLogin 
+            });
+
+            // 입력값 검증
+            if (!email || !password) {
+                showNotification('error', '이메일과 비밀번호를 입력해주세요.');
+                return;
+            }
+
+            if (!isLogin && !username) {
+                showNotification('error', '사용자명을 입력해주세요.');
+                return;
+            }
+
+            // 로딩 상태
+            const originalText = authButton.innerHTML;
+            authButton.innerHTML = '<div class="loading"></div> 처리 중...';
+            authButton.disabled = true;
+
+            try {
+                console.log(`🚀 ${isLogin ? '로그인' : '회원가입'} 시도 중...`);
+                
+                if (isLogin) {
+                    // 로그인
+                    console.log('🔑 로그인 요청 전송...');
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                    console.log('🔑 로그인 응답:', { data: !!data, error: error?.message });
+
+                    if (error) {
+                        console.error('❌ 로그인 에러:', error);
+                        throw error;
+                    }
+
+                    if (data.user) {
+                        console.log('✅ 로그인 성공:', data.user.email);
+                        window.currentUser = data.user;
+                        showNotification('success', '✅ 로그인 성공!');
+                        await showDashboard();
+                    }
+                } else {
+                    // 회원가입
+                    console.log('📝 회원가입 요청 전송...');
+                    const { data, error } = await supabase.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            data: {
+                                username: username
+                            }
+                        }
+                    });
+
+                    console.log('📝 회원가입 응답:', { data: !!data, error: error?.message });
+
+                    if (error) {
+                        console.error('❌ 회원가입 에러:', error);
+                        throw error;
+                    }
+
+                    if (data.user) {
+                        window.currentUser = data.user;
+                        showNotification('success', '🎉 회원가입 완료!');
+                        await showDashboard();
+                    }
+                }
+            } catch (error) {
+                console.error('❌ 인증 처리 중 오류:', error);
+                let errorMessage = error.message;
+                
+                if (error.message.includes('Invalid login credentials')) {
+                    errorMessage = '이메일 또는 비밀번호가 잘못되었습니다.';
+                } else if (error.message.includes('User already registered')) {
+                    errorMessage = '이미 가입된 이메일입니다.';
+                }
+                
+                showNotification('error', '❌ ' + errorMessage);
+            } finally {
+                console.log('🔄 로딩 상태 해제');
+                authButton.innerHTML = originalText;
+                authButton.disabled = false;
+            }
+        }
+
+        // 사용자 상태 확인
+        async function checkUser() {
+            if (!supabase) return;
+            
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (user) {
+                    console.log('👤 기존 사용자 발견:', user.email);
+                    window.currentUser = user;
+                    await showDashboard();
+                } else {
+                    console.log('👤 로그인되지 않은 사용자');
+                    showAuthForm();
+                }
+            } catch (error) {
+                console.error('사용자 확인 오류:', error);
+                showAuthForm();
+            }
+        }
+
+        // 로그아웃
+        async function logout() {
+            if (!supabase) return;
+
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+
+                window.currentUser = null;
+                showNotification('info', '로그아웃되었습니다.');
+                showAuthForm();
+            } catch (error) {
+                console.error('로그아웃 오류:', error);
+                showNotification('error', '로그아웃에 실패했습니다.');
+            }
+        }
+
+        // 인증 폼 표시
+        function showAuthForm() {
+            console.log('📋 인증 폼 표시');
+            const authContainer = document.getElementById('authContainer');
+            const dashboard = document.getElementById('dashboard');
+            const userInfo = document.getElementById('userInfo');
+            
+            if (authContainer) authContainer.style.display = 'block';
+            if (dashboard) dashboard.style.display = 'none';
+            if (userInfo) userInfo.style.display = 'none';
+        }
+
+        // 대시보드 표시
+        async function showDashboard() {
+            console.log('📊 대시보드 표시');
+            if (!window.currentUser || !supabase) return;
+
+            try {
+                // UI 업데이트
+                const authContainer = document.getElementById('authContainer');
+                const dashboard = document.getElementById('dashboard');
+                const userInfo = document.getElementById('userInfo');
+                
+                if (authContainer) authContainer.style.display = 'none';
+                if (dashboard) dashboard.style.display = 'block';
+                if (userInfo) userInfo.style.display = 'flex';
+
+                // 사용자 정보 표시
+                const welcomeUsername = document.getElementById('welcomeUsername');
+                const coinBalance = document.getElementById('coinBalance');
+                const totalCoins = document.getElementById('totalCoins');
+                
+                const username = window.currentUser.user_metadata?.username || 
+                                window.currentUser.email?.split('@')[0] || 'User';
+                
+                if (welcomeUsername) welcomeUsername.textContent = username;
+                if (coinBalance) coinBalance.textContent = '0';
+                if (totalCoins) totalCoins.textContent = '0';
+
+                console.log('✅ 대시보드 로드 완료');
+                showNotification('success', '✅ 로그인 완료!');
+            } catch (error) {
+                console.error('대시보드 로드 오류:', error);
+                showNotification('error', '❌ 대시보드 로드 실패: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
 </body>
 </html>
