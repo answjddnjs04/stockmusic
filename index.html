@@ -853,34 +853,37 @@ function toggleAuthMode() {
             showNotification('info', '회원가입 화면으로 돌아왔습니다.');
         }
 
-        // 인증 모드 업데이트 (기존 toggleAuthMode 로직을 분리)
-        function updateAuthMode() {
-            const authTitle = document.getElementById('authTitle');
-            const authButton = document.getElementById('authButton');
-            const authSwitchText = document.getElementById('authSwitchText');
-            const authSwitchLink = document.getElementById('authSwitchLink');
-            const usernameGroup = document.getElementById('usernameGroup');
-            const usernameField = document.getElementById('username');
-            
-            if (isLogin) {
-                if (authTitle) authTitle.textContent = '로그인';
-                if (authButton) authButton.textContent = '로그인';
-                if (authSwitchText) authSwitchText.textContent = '계정이 없으신가요?';
-                if (authSwitchLink) authSwitchLink.textContent = '회원가입';
-                if (usernameGroup) usernameGroup.style.display = 'none';
-                if (usernameField) {
-                    usernameField.required = false;
-                    usernameField.value = '';
-                }
-            } else {
-                if (authTitle) authTitle.textContent = '회원가입';
-                if (authButton) authButton.textContent = '회원가입';
-                if (authSwitchText) authSwitchText.textContent = '이미 계정이 있으신가요?';
-                if (authSwitchLink) authSwitchLink.textContent = '로그인';
-                if (usernameGroup) usernameGroup.style.display = 'block';
-                if (usernameField) usernameField.required = true;
-            }
+       function updateAuthMode() {
+    const authTitle = document.getElementById('authTitle');
+    const authButton = document.getElementById('authButton');
+    const authSwitchText = document.getElementById('authSwitchText');
+    const authSwitchLink = document.getElementById('authSwitchLink');
+    const usernameGroup = document.getElementById('usernameGroup');
+    const usernameField = document.getElementById('username');
+    
+    if (isLogin) {
+        if (authTitle) authTitle.textContent = '로그인';
+        if (authButton) authButton.textContent = '로그인';
+        if (authSwitchText) authSwitchText.textContent = '계정이 없으신가요?';
+        if (authSwitchLink) authSwitchLink.textContent = '회원가입';
+        if (usernameGroup) usernameGroup.style.display = 'none';
+        if (usernameField) {
+            usernameField.required = false;
+            usernameField.disabled = true;
+            usernameField.value = '';
         }
+    } else {
+        if (authTitle) authTitle.textContent = '회원가입';
+        if (authButton) authButton.textContent = '회원가입';
+        if (authSwitchText) authSwitchText.textContent = '이미 계정이 있으신가요?';
+        if (authSwitchLink) authSwitchLink.textContent = '로그인';
+        if (usernameGroup) usernameGroup.style.display = 'block';
+        if (usernameField) {
+            usernameField.required = true;
+            usernameField.disabled = false;
+        }
+    }
+}
     </script>
 </body>
 </html>
