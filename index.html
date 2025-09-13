@@ -308,8 +308,58 @@ a.btn {
             </div>
         </div>
 
+        <!-- 이메일 인증 대기 화면 -->
+        <div class="auth-container" id="emailVerificationContainer" style="display: none;">
+            <h2 class="auth-title">📧 이메일 인증</h2>
+            
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📬</div>
+                <h3 style="color: var(--accent-blue); margin-bottom: 1rem;">인증 이메일을 확인해주세요!</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6;">
+                    <strong id="verificationEmail"></strong>으로<br>
+                    인증 링크가 발송되었습니다.
+                </p>
+            </div>
+
+            <div class="notification info" style="text-align: left; margin-bottom: 2rem;">
+                <h4>📋 다음 단계:</h4>
+                <ol style="margin: 1rem 0; padding-left: 1.5rem;">
+                    <li>이메일함을 확인하세요</li>
+                    <li>인증 링크를 클릭하세요</li>
+                    <li>아래 로그인 버튼을 눌러주세요</li>
+                </ol>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 1rem;">
+                    💡 이메일이 보이지 않나요? 스팸함도 확인해보세요.
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 1rem; flex-direction: column;">
+                <button class="btn" onclick="proceedToLogin()" style="background: var(--accent-blue);">
+                    ✅ 인증 완료! 로그인하기
+                </button>
+                
+                <button class="btn" onclick="resendVerificationEmail()" style="background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border);">
+                    📧 인증 이메일 재전송
+                </button>
+                
+                <button class="btn" onclick="backToSignup()" style="background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border);">
+                    ← 회원가입으로 돌아가기
+                </button>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem; padding: 1rem; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border);">
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    👤 가입 정보
+                </p>
+                <p style="color: var(--text-primary);">
+                    <strong>사용자명:</strong> <span id="verificationUsername"></span><br>
+                    <strong>이메일:</strong> <span id="verificationEmailDisplay"></span>
+                </p>
+            </div>
+        </div>
+
         <!-- 대시보드 -->
-<div class="dashboard" id="dashboard">
+        <div class="dashboard" id="dashboard">
     <div class="welcome">
         <h2>환영합니다, <span id="welcomeUsername"></span>님! 🎉</h2>
         <p>인디 뮤직 플랫폼에서 음악을 듣고 투자해보세요!</p>
@@ -385,37 +435,23 @@ a.btn {
             }
         }
 
-        // 토글 함수 (전역으로 이동)
-        function toggleAuthMode() {
-            console.log('🔄 인증 모드 토글:', isLogin ? '회원가입으로' : '로그인으로');
-            isLogin = !isLogin;
-            
-            const authTitle = document.getElementById('authTitle');
-            const authButton = document.getElementById('authButton');
-            const authSwitchText = document.getElementById('authSwitchText');
-            const authSwitchLink = document.getElementById('authSwitchLink');
-            const usernameGroup = document.getElementById('usernameGroup');
-            const usernameField = document.getElementById('username');
-            
-            if (isLogin) {
-                authTitle.textContent = '로그인';
-                authButton.textContent = '로그인';
-                authSwitchText.textContent = '계정이 없으신가요?';
-                authSwitchLink.textContent = '회원가입';
-                usernameGroup.style.display = 'none';
-                usernameField.required = false;
-                usernameField.value = '';
-            } else {
-                authTitle.textContent = '회원가입';
-                authButton.textContent = '회원가입';
-                authSwitchText.textContent = '이미 계정이 있으신가요?';
-                authSwitchLink.textContent = '로그인';
-                usernameGroup.style.display = 'block';
-                usernameField.required = true;
-            }
-            
-            console.log('✅ 인증 모드 변경 완료:', isLogin ? '로그인' : '회원가입');
-        }
+       // 토글 함수 (전역으로 이동)
+function toggleAuthMode() {
+    console.log('🔄 인증 모드 토글:', isLogin ? '회원가입으로' : '로그인으로');
+    isLogin = !isLogin;
+    
+    // 인증 대기 화면 숨기기 (만약 표시 중이라면)
+    const emailVerificationContainer = document.getElementById('emailVerificationContainer');
+    if (emailVerificationContainer) emailVerificationContainer.style.display = 'none';
+    
+    // 기본 인증 화면 표시
+    const authContainer = document.getElementById('authContainer');
+    if (authContainer) authContainer.style.display = 'block';
+    
+    updateAuthMode();
+    
+    console.log('✅ 인증 모드 변경 완료:', isLogin ? '로그인' : '회원가입');
+}
 
         // 로그아웃 함수
         function logoutUser() {
@@ -563,31 +599,40 @@ a.btn {
                         await showDashboard();
                     }
                 } else {
-                    // 회원가입
-                    console.log('📝 회원가입 요청 전송...');
-                    const { data, error } = await supabase.auth.signUp({
-                        email: email,
-                        password: password,
-                        options: {
-                            data: {
-                                username: username
-                            }
-                        }
-                    });
+    // 회원가입
+    console.log('📝 회원가입 요청 전송...');
+    const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+            data: {
+                username: username
+            }
+        }
+    });
 
-                    console.log('📝 회원가입 응답:', { data: !!data, error: error?.message });
+    console.log('📝 회원가입 응답:', { data: !!data, error: error?.message });
 
-                    if (error) {
-                        console.error('❌ 회원가입 에러:', error);
-                        throw error;
-                    }
+    if (error) {
+        console.error('❌ 회원가입 에러:', error);
+        throw error;
+    }
 
-                    if (data.user) {
-                        window.currentUser = data.user;
-                        showNotification('success', '🎉 회원가입 완료!');
-                        await showDashboard();
-                    }
-                }
+    if (data.user) {
+        console.log('📧 이메일 인증 필요');
+        
+        // 회원가입은 성공했지만 이메일 인증이 필요함을 알림
+        if (!data.session) {
+            // 이메일 인증이 필요한 경우
+            showEmailVerificationScreen(email, username);
+        } else {
+            // 이메일 인증이 비활성화된 경우 (바로 로그인)
+            window.currentUser = data.user;
+            showNotification('success', '🎉 회원가입 완료!');
+            await showDashboard();
+        }
+    }
+}
             } catch (error) {
                 console.error('❌ 인증 처리 중 오류:', error);
                 let errorMessage = error.message;
@@ -690,8 +735,152 @@ a.btn {
                 showNotification('error', '❌ 대시보드 로드 실패: ' + error.message);
             }
         }
+
+        // 전역 변수 (이메일 인증용)
+        let pendingVerificationEmail = '';
+        let pendingVerificationUsername = '';
+
+        // 이메일 인증 화면 표시
+        function showEmailVerificationScreen(email, username) {
+            console.log('📧 이메일 인증 화면 표시:', email);
+            
+            // 전역 변수에 저장
+            pendingVerificationEmail = email;
+            pendingVerificationUsername = username;
+            
+            // UI 요소들
+            const authContainer = document.getElementById('authContainer');
+            const emailVerificationContainer = document.getElementById('emailVerificationContainer');
+            const dashboard = document.getElementById('dashboard');
+            const userInfo = document.getElementById('userInfo');
+            
+            // 화면 전환
+            if (authContainer) authContainer.style.display = 'none';
+            if (emailVerificationContainer) emailVerificationContainer.style.display = 'block';
+            if (dashboard) dashboard.style.display = 'none';
+            if (userInfo) userInfo.style.display = 'none';
+            
+            // 정보 표시
+            const verificationEmail = document.getElementById('verificationEmail');
+            const verificationUsername = document.getElementById('verificationUsername');
+            const verificationEmailDisplay = document.getElementById('verificationEmailDisplay');
+            
+            if (verificationEmail) verificationEmail.textContent = email;
+            if (verificationUsername) verificationUsername.textContent = username;
+            if (verificationEmailDisplay) verificationEmailDisplay.textContent = email;
+            
+            showNotification('success', `📧 ${email}로 인증 이메일이 발송되었습니다!`);
+        }
+
+        // 로그인으로 진행
+        function proceedToLogin() {
+            console.log('✅ 인증 완료 후 로그인 진행');
+            
+            // 로그인 모드로 전환
+            isLogin = true;
+            
+            // 화면 전환
+            const authContainer = document.getElementById('authContainer');
+            const emailVerificationContainer = document.getElementById('emailVerificationContainer');
+            
+            if (emailVerificationContainer) emailVerificationContainer.style.display = 'none';
+            if (authContainer) authContainer.style.display = 'block';
+            
+            // 폼 업데이트
+            updateAuthMode();
+            
+            // 이메일 자동 입력
+            const emailField = document.getElementById('email');
+            if (emailField && pendingVerificationEmail) {
+                emailField.value = pendingVerificationEmail;
+            }
+            
+            showNotification('info', '이제 로그인해주세요! 이메일이 자동으로 입력되었습니다.');
+        }
+
+        // 인증 이메일 재전송
+        async function resendVerificationEmail() {
+            if (!supabase || !pendingVerificationEmail) {
+                showNotification('error', '이메일 정보가 없습니다.');
+                return;
+            }
+            
+            try {
+                console.log('📧 인증 이메일 재전송 중...', pendingVerificationEmail);
+                showNotification('info', '📧 인증 이메일 재전송 중...');
+                
+                const { error } = await supabase.auth.resend({
+                    type: 'signup',
+                    email: pendingVerificationEmail
+                });
+                
+                if (error) throw error;
+                
+                showNotification('success', '📧 인증 이메일이 재전송되었습니다! 메일함을 확인해주세요.');
+            } catch (error) {
+                console.error('❌ 이메일 재전송 실패:', error);
+                
+                let errorMessage = '이메일 재전송에 실패했습니다.';
+                if (error.message.includes('Email rate limit exceeded')) {
+                    errorMessage = '이메일 전송 한도를 초과했습니다. 잠시 후 다시 시도해주세요.';
+                }
+                
+                showNotification('error', '❌ ' + errorMessage);
+            }
+        }
+
+        // 회원가입으로 돌아가기
+        function backToSignup() {
+            console.log('← 회원가입으로 돌아가기');
+            
+            // 회원가입 모드로 전환
+            isLogin = false;
+            
+            // 화면 전환
+            const authContainer = document.getElementById('authContainer');
+            const emailVerificationContainer = document.getElementById('emailVerificationContainer');
+            
+            if (emailVerificationContainer) emailVerificationContainer.style.display = 'none';
+            if (authContainer) authContainer.style.display = 'block';
+            
+            // 폼 업데이트
+            updateAuthMode();
+            
+            // 폼 초기화
+            const authForm = document.getElementById('authForm');
+            if (authForm) authForm.reset();
+            
+            showNotification('info', '회원가입 화면으로 돌아왔습니다.');
+        }
+
+        // 인증 모드 업데이트 (기존 toggleAuthMode 로직을 분리)
+        function updateAuthMode() {
+            const authTitle = document.getElementById('authTitle');
+            const authButton = document.getElementById('authButton');
+            const authSwitchText = document.getElementById('authSwitchText');
+            const authSwitchLink = document.getElementById('authSwitchLink');
+            const usernameGroup = document.getElementById('usernameGroup');
+            const usernameField = document.getElementById('username');
+            
+            if (isLogin) {
+                if (authTitle) authTitle.textContent = '로그인';
+                if (authButton) authButton.textContent = '로그인';
+                if (authSwitchText) authSwitchText.textContent = '계정이 없으신가요?';
+                if (authSwitchLink) authSwitchLink.textContent = '회원가입';
+                if (usernameGroup) usernameGroup.style.display = 'none';
+                if (usernameField) {
+                    usernameField.required = false;
+                    usernameField.value = '';
+                }
+            } else {
+                if (authTitle) authTitle.textContent = '회원가입';
+                if (authButton) authButton.textContent = '회원가입';
+                if (authSwitchText) authSwitchText.textContent = '이미 계정이 있으신가요?';
+                if (authSwitchLink) authSwitchLink.textContent = '로그인';
+                if (usernameGroup) usernameGroup.style.display = 'block';
+                if (usernameField) usernameField.required = true;
+            }
+        }
     </script>
-</body>
-</html>
 </body>
 </html>
