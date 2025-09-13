@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 인디 뮤직 플랫폼</title>
+    <style>
+        /* CSS 변수 - 60-30-10 색상 규칙 */
+        :root {
+            /* 배경색 60% */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-surface: #2a2a2a;
+
+            /* 보조색 30% */
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border: #404040;
+
+            /* 강조색 10% */
+            --accent-gold: #ffd700;
+            --accent-blue: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-red: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* 헤더 */
+        .header {
+            background: var(--bg-secondary);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .coin-balance {
+            background: var(--bg-surface);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        /* 메인 컨테이너 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* 인증 폼 */
+        .auth-container {
+            max-width: 400px;
+            margin: 2rem auto;
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .auth-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--accent-blue);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #0099cc;
+        }
+
+        .btn:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .auth-switch a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        /* 대시보드 */
+        .dashboard {
+            display: none;
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* 알림 */
+        .notification {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .notification.success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .notification.error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .notification.info {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        /* 로딩 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--accent-blue);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .auth-container {
+                margin: 1rem auto;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🎵 인디 뮤직</div>
+        <div class="user-info" id="userInfo" style="display: none;">
+            <div class="coin-balance">
+                💰 <span id="coinBalance">0</span> 코인
+            </div>
+            <button class="btn" onclick="logout()" style="width: auto; padding: 0.5rem 1rem;">로그아웃</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 알림 영역 -->
+        <div id="notification"></div>
+
+        <!-- 인증 폼 -->
+        <div class="auth-container" id="authContainer">
+            <h2 class="auth-title" id="authTitle">로그인</h2>
+            
+            <form id="authForm">
+                <div class="form-group" id="usernameGroup" style="display: none;">
+                    <label for="username">사용자명</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn" id="authButton">
+                    로그인
+                </button>
+            </form>
+            
+            <div class="auth-switch">
+                <span id="authSwitchText">계정이 없으신가요?</span>
+                <a id="authSwitchLink" onclick="toggleAuthMode()">회원가입</a>
+            </div>
+        </div>
+
+        <!-- 대시보드 -->
+        <div class="dashboard" id="dashboard">
+            <div class="welcome">
+                <h2>환영합니다, <span id="welcomeUsername"></span>님! 🎉</h2>
+                <p>인디 뮤직 플랫폼에서 음악을 듣고 투자해보세요!</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCoins">0</div>
+                    <div class="stat-label">보유 코인</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPlays">0</div>
+                    <div class="stat-label">청취한 곡수</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="totalInvestments">0</div>
+                    <div class="stat-label">투자한 곡수</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDividends">0</div>
+                    <div class="stat-label">누적 배당</div>
+                </div>
+            </div>
+
+            <div class="notification info">
+                <h3>🚀 Day 1 완료!</h3>
+                <p>Supabase 연결과 기본 인증 시스템이 구현되었습니다.<br>
+                내일은 음악 업로드 기능을 추가할 예정입니다!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // ⚠️ 실제 개발 시에는 환경변수로 관리해주세요!
+        const SUPABASE_URL = https://aoejmmcbrrcsievldbxi.supabase.co;
+        const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvZWptbWNicnJjc2lldmxkYnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MjcwNDQsImV4cCI6MjA3MzMwMzA0NH0.7d86lw9ABAn6G_cXvXjpdoOlqtW8K3FVCR43w70q4eY;
+        
+        // Supabase 클라이언트 초기화
+        let supabase;
+        
+        // 설정 확인
+        if (SUPABASE_URL === 'YOUR_SUPABASE_URL_HERE' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY_HERE') {
+            showNotification('error', '⚠️ Supabase 설정이 필요합니다! SUPABASE_URL과 SUPABASE_ANON_KEY를 입력해주세요.');
+        } else {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('✅ Supabase 연결 성공!');
+                showNotification('success', '✅ Supabase 연결 완료!');
+            } catch (error) {
+                console.error('❌ Supabase 연결 실패:', error);
+                showNotification('error', '❌ Supabase 연결 실패: ' + error.message);
+            }
+        }
+
+        // 전역 변수
+        let isLogin = true;
+        let currentUser = null;
+
+        // DOM 요소들
+        const authContainer = document.getElementById('authContainer');
+        const dashboard = document.getElementById('dashboard');
+        const authForm = document.getElementById('authForm');
+        const authTitle = document.getElementById('authTitle');
+        const authButton = document.getElementById('authButton');
+        const authSwitchText = document.getElementById('authSwitchText');
+        const authSwitchLink = document.getElementById('authSwitchLink');
+        const usernameGroup = document.getElementById('usernameGroup');
+        const userInfo = document.getElementById('userInfo');
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser();
+            setupAuthForm();
+        });
+
+        // 사용자 상태 확인
+        async function checkUser() {
+            if (!supabase) return;
+            
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (user) {
+                    currentUser = user;
+                    await showDashboard();
+                } else {
+                    showAuthForm();
+                }
+            } catch (error) {
+                console.error('사용자 확인 오류:', error);
+                showAuthForm();
+            }
+        }
+
+        // 인증 폼 설정
+        function setupAuthForm() {
+            authForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!supabase) {
+                    showNotification('error', 'Supabase가 연결되지 않았습니다.');
+                    return;
+                }
+
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const username = document.getElementById('username').value;
+
+                // 로딩 상태
+                authButton.innerHTML = '<div class="loading"></div> 처리 중...';
+                authButton.disabled = true;
+
+                try {
+                    if (isLogin) {
+                        // 로그인
+                        const { data, error } = await supabase.auth.signInWithPassword({
+                            email,
+                            password
+                        });
+
+                        if (error) throw error;
+
+                        currentUser = data.user;
+                        showNotification('success', '✅ 로그인 성공!');
+                        await showDashboard();
+                    } else {
+                        // 회원가입
+                        const { data, error } = await supabase.auth.signUp({
+                            email,
+                            password,
+                            options: {
+                                data: {
+                                    username: username
+                                }
+                            }
+                        });
+
+                        if (error) throw error;
+
+                        if (data.user) {
+                            // 사용자 정보를 users 테이블에 저장
+                            const { error: insertError } = await supabase
+                                .from('users')
+                                .insert([
+                                    { 
+                                        id: data.user.id,
+                                        username: username,
+                                        email: email,
+                                        coin_balance: 10 // 가입 보너스
+                                    }
+                                ]);
+
+                            if (insertError) throw insertError;
+
+                            currentUser = data.user;
+                            showNotification('success', '🎉 회원가입 완료! 가입 보너스 10코인을 받았습니다!');
+                            await showDashboard();
+                        } else {
+                            showNotification('info', '📧 이메일 인증이 필요합니다. 메일함을 확인해주세요.');
+                        }
+                    }
+                } catch (error) {
+                    console.error('인증 오류:', error);
+                    let errorMessage = '인증에 실패했습니다.';
+                    
+                    if (error.message.includes('Invalid login credentials')) {
+                        errorMessage = '이메일 또는 비밀번호가 잘못되었습니다.';
+                    } else if (error.message.includes('User already registered')) {
+                        errorMessage = '이미 가입된 이메일입니다.';
+                    } else if (error.message.includes('Password should be at least 6 characters')) {
+                        errorMessage = '비밀번호는 최소 6자 이상이어야 합니다.';
+                    }
+                    
+                    showNotification('error', '❌ ' + errorMessage);
+                } finally {
+                    // 로딩 상태 해제
+                    authButton.innerHTML = isLogin ? '로그인' : '회원가입';
+                    authButton.disabled = false;
+                }
+            });
+        }
+
+        // 로그인/회원가입 모드 토글
+        function toggleAuthMode() {
+            isLogin = !isLogin;
+            
+            if (isLogin) {
+                authTitle.textContent = '로그인';
+                authButton.textContent = '로그인';
+                authSwitchText.textContent = '계정이 없으신가요?';
+                authSwitchLink.textContent = '회원가입';
+                usernameGroup.style.display = 'none';
+                document.getElementById('username').required = false;
+            } else {
+                authTitle.textContent = '회원가입';
+                authButton.textContent = '회원가입';
+                authSwitchText.textContent = '이미 계정이 있으신가요?';
+                authSwitchLink.textContent = '로그인';
+                usernameGroup.style.display = 'block';
+                document.getElementById('username').required = true;
+            }
+        }
+
+        // 인증 폼 표시
+        function showAuthForm() {
+            authContainer.style.display = 'block';
+            dashboard.style.display = 'none';
+            userInfo.style.display = 'none';
+        }
+
+        // 대시보드 표시
+        async function showDashboard() {
+            if (!currentUser || !supabase) return;
+
+            try {
+                // 사용자 정보 가져오기
+                const { data: userData, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (error) throw error;
+
+                // UI 업데이트
+                authContainer.style.display = 'none';
+                dashboard.style.display = 'block';
+                userInfo.style.display = 'flex';
+
+                // 사용자 정보 표시
+                document.getElementById('welcomeUsername').textContent = userData.username || 'User';
+                document.getElementById('coinBalance').textContent = userData.coin_balance || 0;
+                document.getElementById('totalCoins').textContent = userData.coin_balance || 0;
+
+                // 임시 데이터 (나중에 실제 데이터로 교체)
+                document.getElementById('totalPlays').textContent = '0';
+                document.getElementById('totalInvestments').textContent = '0';
+                document.getElementById('totalDividends').textContent = '0';
+
+                console.log('✅ 대시보드 로드 완료');
+            } catch (error) {
+                console.error('대시보드 로드 오류:', error);
+                showNotification('error', '대시보드 로드에 실패했습니다.');
+            }
+        }
+
+        // 로그아웃
+        async function logout() {
+            if (!supabase) return;
+
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+
+                currentUser = null;
+                showNotification('info', '로그아웃되었습니다.');
+                showAuthForm();
+            } catch (error) {
+                console.error('로그아웃 오류:', error);
+                showNotification('error', '로그아웃에 실패했습니다.');
+            }
+        }
+
+        // 알림 표시
+        function showNotification(type, message) {
+            const notification = document.getElementById('notification');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = message;
+            notification.style.display = 'block';
+
+            // 5초 후 자동 숨김
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+
+        // Supabase Auth 상태 변화 감지
+        if (supabase) {
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN') {
+                    currentUser = session.user;
+                    showDashboard();
+                } else if (event === 'SIGNED_OUT') {
+                    currentUser = null;
+                    showAuthForm();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
