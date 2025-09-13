@@ -943,41 +943,72 @@
 
         // 아티스트 데이터 처리
         async function handleArtistData(artistName) {
-            try {
-                // 기존 아티스트 확인
-                const { data: existingArtist, error: searchError } = await supabase
-                    .from('artists')
-                    .select('id')
-                    .eq('user_id', currentUser.id)
-                    .eq('artist_name', artistName)
-                    .single();
-
-                if (existingArtist) {
-                    console.log('✅ 기존 아티스트 사용:', artistName);
-                    return existingArtist.id;
-                }
-
-                // 새 아티스트 생성
-                const { data: newArtist, error: insertError } = await supabase
-                    .from('artists')
-                    .insert([{
-                        user_id: currentUser.id,
-                        artist_name: artistName,
-                        bio: null,
-                        avatar_url: null
-                    }])
-                    .select()
-                    .single();
-
-                if (insertError) throw insertError;
-
-                console.log('✅ 새 아티스트 생성:', artistName);
-                return newArtist.id;
-
-            } catch (error) {
-                throw new Error('아티스트 정보 처리 실패: ' + error.message);
+    try {
+        console.log('🔍 사용자 ID:', currentUser.id);
+        
+        // 먼저 users 테이블에 사용자가 있는지 확인
+        const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('id', currentUser.id)
+            .single();
+            
+        if (userError || !userData) {
+            console.log('👤 users 테이블에 사용자 정보 생성 중...');
+            // users 테이블에 사용자 정보가 없으면 생성
+            const { error: createUserError } = await supabase
+                .from('users')
+                .insert([{
+                    id: currentUser.id,
+                    username: currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'User',
+                    email: currentUser.email,
+                    coin_balance: 10
+                }]);
+                
+            if (createUserError) {
+                console.log('사용자 생성 오류:', createUserError);
             }
         }
+
+        // 기존 아티스트 확인
+        const { data: existingArtist, error: searchError } = await supabase
+            .from('artists')
+            .select('id')
+            .eq('user_id', currentUser.id)
+            .eq('artist_name', artistName)
+            .maybeSingle(); // single() 대신 maybeSingle() 사용
+
+        if (existingArtist) {
+            console.log('✅ 기존 아티스트 사용:', artistName);
+            return existingArtist.id;
+        }
+
+        console.log('🎨 새 아티스트 생성 중...');
+        // 새 아티스트 생성
+        const { data: newArtist, error: insertError } = await supabase
+            .from('artists')
+            .insert([{
+                user_id: currentUser.id,
+                artist_name: artistName,
+                bio: null,
+                avatar_url: null
+            }])
+            .select()
+            .single();
+
+        if (insertError) {
+            console.error('아티스트 생성 오류:', insertError);
+            throw insertError;
+        }
+
+        console.log('✅ 새 아티스트 생성 완료:', newArtist);
+        return newArtist.id;
+
+    } catch (error) {
+        console.error('❌ handleArtistData 오류:', error);
+        throw new Error('아티스트 정보 처리 실패: ' + error.message);
+    }
+}
 
         // 파일 업로드 (Supabase Storage)
         async function uploadFile(file, folder) {
