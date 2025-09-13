@@ -191,7 +191,14 @@ async function showDashboard(supabase, showNotification) {
             .eq('id', window.currentUser.id)
             .single();
 
-        if (error) throw error;
+        if (error) {
+            console.log('사용자 데이터 없음, 기본값 사용:', error);
+            // users 테이블에 데이터가 없으면 기본값 사용
+            userData = {
+                username: window.currentUser.user_metadata?.username || window.currentUser.email?.split('@')[0] || 'User',
+                coin_balance: 0
+            };
+        }
 
         // UI 업데이트
         const authContainer = document.getElementById('authContainer');
@@ -213,8 +220,9 @@ async function showDashboard(supabase, showNotification) {
         document.getElementById('totalDividends').textContent = '0';
 
         console.log('✅ 대시보드 로드 완료');
+        showNotification('success', '✅ 로그인 완료! 메인 홈으로 이동합니다.');
     } catch (error) {
         console.error('대시보드 로드 오류:', error);
-        showNotification('error', '대시보드 로드에 실패했습니다.');
+        showNotification('error', '❌ 대시보드 로드에 실패했습니다: ' + error.message);
     }
 }
