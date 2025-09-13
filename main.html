@@ -707,14 +707,17 @@
             });
 
             // 네비게이션 활성화 효과
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    navItems.forEach(nav => nav.classList.remove('active'));
-                    item.classList.add('active');
-                });
-            });
+const navItems = document.querySelectorAll('.nav-item');
+navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+        // href가 '#'인 경우에만 preventDefault 적용
+        if (item.getAttribute('href') === '#') {
+            e.preventDefault();
+        }
+        navItems.forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+    });
+});
 
             // 로딩 애니메이션 제거
             setTimeout(() => {
