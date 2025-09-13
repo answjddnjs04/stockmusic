@@ -246,6 +246,19 @@
                 padding: 1.5rem;
             }
         }
+        /* 버튼 호버 효과 추가 */
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+}
+
+/* 링크 버튼 스타일 */
+a.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
     </style>
     <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -299,40 +312,47 @@
         </div>
 
         <!-- 대시보드 -->
-        <div class="dashboard" id="dashboard">
-            <div class="welcome">
-                <h2>환영합니다, <span id="welcomeUsername"></span>님! 🎉</h2>
-                <p>인디 뮤직 플랫폼에서 음악을 듣고 투자해보세요!</p>
-            </div>
+<div class="dashboard" id="dashboard">
+    <div class="welcome">
+        <h2>환영합니다, <span id="welcomeUsername"></span>님! 🎉</h2>
+        <p>인디 뮤직 플랫폼에서 음악을 듣고 투자해보세요!</p>
+    </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="totalCoins">0</div>
-                    <div class="stat-label">보유 코인</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-value" id="totalPlays">0</div>
-                    <div class="stat-label">청취한 곡수</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-value" id="totalInvestments">0</div>
-                    <div class="stat-label">투자한 곡수</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-value" id="totalDividends">0</div>
-                    <div class="stat-label">누적 배당</div>
-                </div>
-            </div>
-
-            <div class="notification info">
-                <h3>🚀 Day 1 완료!</h3>
-                <p>Supabase 연결과 기본 인증 시스템이 구현되었습니다.<br>
-                내일은 음악 업로드 기능을 추가할 예정입니다!</p>
-            </div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="totalCoins">0</div>
+            <div class="stat-label">보유 코인</div>
         </div>
+        
+        <div class="stat-card">
+            <div class="stat-value" id="totalPlays">0</div>
+            <div class="stat-label">청취한 곡수</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value" id="totalInvestments">0</div>
+            <div class="stat-label">투자한 곡수</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value" id="totalDividends">0</div>
+            <div class="stat-label">누적 배당</div>
+        </div>
+    </div>
+
+    <!-- 메인 홈으로 이동 버튼 -->
+    <div style="text-align: center; margin: 2rem 0;">
+        <a href="main.html" class="btn" style="background: linear-gradient(135deg, var(--accent-blue), var(--accent-gold)); color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; padding: 1rem 2rem; border-radius: 25px; font-weight: 600; transition: transform 0.3s;">
+            🏠 메인 홈으로 이동
+        </a>
+    </div>
+
+    <div class="notification success">
+        <h3>✅ 로그인 성공!</h3>
+        <p>Supabase 인증이 완료되었습니다.<br>
+        <strong>메인 홈</strong>에서 음악을 탐색하고 투자를 시작해보세요!</p>
+    </div>
+</div>
     </div>
 
     <!-- Supabase SDK -->
