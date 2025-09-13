@@ -365,13 +365,17 @@ if (SUPABASE_URL === 'YOUR_SUPABASE_URL_HERE' || SUPABASE_ANON_KEY === 'YOUR_SUP
 
 // 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', () => {
-    checkUser(supabase, 
-        () => showDashboard(supabase, showNotification), 
-        showAuthForm
-    );
-    setupAuthForm(supabase, showNotification, 
-        () => showDashboard(supabase, showNotification)
-    );
+    if (supabase) {
+        checkUser(supabase, 
+            () => showDashboard(supabase, showNotification), 
+            showAuthForm
+        );
+        setupAuthForm(supabase, showNotification, 
+            () => showDashboard(supabase, showNotification)
+        );
+    } else {
+        showAuthForm();
+    }
 });
 
 // 알림 표시 함수
