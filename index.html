@@ -493,21 +493,24 @@ function toggleAuthMode() {
         }
 
         // 페이지 로드 시 실행
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('🚀 DOM 로드 완료');
-            
-            // Supabase 초기화
-            const supabaseReady = initializeSupabase();
-            
-            if (supabaseReady) {
-                console.log('✅ 인증 시스템 초기화 중...');
-                await checkUser();
-                setupAuthForm();
-            } else {
-                console.log('❌ Supabase 초기화 실패, 인증 폼 표시');
-                showAuthForm();
-            }
-        });
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🚀 DOM 로드 완료');
+    
+    // 초기 인증 모드 설정
+    updateAuthMode();
+    
+    // Supabase 초기화
+    const supabaseReady = initializeSupabase();
+    
+    if (supabaseReady) {
+        console.log('✅ 인증 시스템 초기화 중...');
+        await checkUser();
+        setupAuthForm();
+    } else {
+        console.log('❌ Supabase 초기화 실패, 인증 폼 표시');
+        showAuthForm();
+    }
+});
     </script>
     
     <!-- auth.js를 인라인으로 포함 -->
