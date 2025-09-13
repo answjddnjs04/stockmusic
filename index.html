@@ -385,7 +385,11 @@ if (SUPABASE_URL === 'YOUR_SUPABASE_URL_HERE' || SUPABASE_ANON_KEY === 'YOUR_SUP
 
 // 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 페이지 로드 완료');
+    console.log('🔍 Supabase 상태:', !!supabase);
+    
     if (supabase) {
+        console.log('✅ Supabase 연결됨, 사용자 확인 중...');
         checkUser(supabase, 
             () => showDashboard(supabase, showNotification), 
             showAuthForm
@@ -394,6 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
             () => showDashboard(supabase, showNotification)
         );
     } else {
+        console.log('❌ Supabase 연결 안됨, 인증 폼 표시');
         showAuthForm();
     }
 });
