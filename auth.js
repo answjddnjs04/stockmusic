@@ -1,7 +1,16 @@
 // 인증 관련 함수들을 관리하는 모듈
-
 // 전역 변수
 let isLogin = true;
+
+// 초기 상태 설정
+document.addEventListener('DOMContentLoaded', () => {
+    // 페이지 로드 시 로그인 모드로 초기화
+    const usernameField = document.getElementById('username');
+    if (usernameField) {
+        usernameField.required = false;
+    }
+});
+
 
 // 로그인/회원가입 모드 토글
 function toggleAuthMode() {
@@ -21,6 +30,7 @@ function toggleAuthMode() {
         authSwitchLink.textContent = '회원가입';
         usernameGroup.style.display = 'none';
         usernameField.required = false;
+        usernameField.value = ''; // 이 줄 추가
     } else {
         authTitle.textContent = '회원가입';
         authButton.textContent = '회원가입';
