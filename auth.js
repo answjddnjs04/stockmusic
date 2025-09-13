@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 로그인/회원가입 모드 토글
 function toggleAuthMode() {
+    console.log('🔄 인증 모드 토글:', isLogin ? '회원가입으로' : '로그인으로');
     isLogin = !isLogin;
     
     const authTitle = document.getElementById('authTitle');
@@ -30,7 +31,7 @@ function toggleAuthMode() {
         authSwitchLink.textContent = '회원가입';
         usernameGroup.style.display = 'none';
         usernameField.required = false;
-        usernameField.value = ''; // 이 줄 추가
+        usernameField.value = '';
     } else {
         authTitle.textContent = '회원가입';
         authButton.textContent = '회원가입';
@@ -39,6 +40,8 @@ function toggleAuthMode() {
         usernameGroup.style.display = 'block';
         usernameField.required = true;
     }
+    
+    console.log('✅ 인증 모드 변경 완료:', isLogin ? '로그인' : '회원가입');
 }
 
 // 인증 폼 설정
