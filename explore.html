@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 음악 탐색 - 인디 뮤직 플랫폼</title>
+    <style>
+        /* CSS 변수 - 60-30-10 색상 규칙 */
+        :root {
+            /* 배경색 60% */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-surface: #2a2a2a;
+
+            /* 보조색 30% */
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border: #404040;
+
+            /* 강조색 10% */
+            --accent-gold: #ffd700;
+            --accent-blue: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-red: #ff4757;
+            --accent-purple: #9c88ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* 헤더 */
+        .header {
+            background: var(--bg-secondary);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            color: var(--accent-blue);
+        }
+
+        .nav-item.active {
+            color: var(--accent-blue);
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-blue);
+            border-radius: 1px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .coin-balance {
+            background: var(--bg-surface);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            color: var(--accent-gold);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 메인 컨테이너 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* 페이지 헤더 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 검색 및 필터 */
+        .search-filter-section {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .search-btn {
+            padding: 0.8rem 1.5rem;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .search-btn:hover {
+            background: #0099cc;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .filter-tab.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .filter-tab:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .filter-tab.active:hover {
+            color: white;
+        }
+
+        /* 음악 리스트 */
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .music-card {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .music-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .music-cover {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--bg-surface), var(--border));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .music-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .music-card:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .play-button {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+        }
+
+        .music-info {
+            padding: 1.5rem;
+        }
+
+        .music-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .music-artist {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .music-description {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .music-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .music-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .music-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .invest-btn {
+            flex: 1;
+            padding: 0.6rem;
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .invest-btn:hover {
+            background: #e6c200;
+        }
+
+        .like-btn {
+            padding: 0.6rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .like-btn:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .like-btn.liked {
+            background: var(--accent-red);
+            color: white;
+            border-color: var(--accent-red);
+        }
+
+        /* 로딩 */
+        .loading-container {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--accent-blue);
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* 페이지네이션 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pagination-btn:hover {
+            border-color: var(--accent-blue);
+            background: var(--bg-secondary);
+        }
+
+        .pagination-btn.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 알림 */
+        .notification {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .notification.success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .notification.error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .notification.info {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .nav-menu {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .search-filter-section {
+                padding: 1.5rem;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .music-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-tabs {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <div class="header">
+        <div class="header-content">
+            <a href="main.html" class="logo">🎵 인디 뮤직</a>
+            
+            <nav class="nav-menu">
+                <a href="main.html" class="nav-item">홈</a>
+                <a href="explore.html" class="nav-item active">탐색</a>
+                <a href="upload.html" class="nav-item">업로드</a>
+                <a href="#" class="nav-item">투자</a>
+                <a href="#" class="nav-item">내 라이브러리</a>
+            </nav>
+            
+            <div class="user-info">
+                <div class="coin-balance">
+                    💰 <span id="coinBalance">0</span> 코인
+                </div>
+                <div class="profile-avatar" id="profileAvatar">U</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 컨테이너 -->
+    <div class="container">
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+            <h1 class="page-title">🎵 음악 탐색</h1>
+            <p class="page-subtitle">
+                다양한 인디 뮤지션들의 음악을 탐색하고 투자해보세요!
+            </p>
+        </div>
+
+        <!-- 알림 영역 -->
+        <div id="notification"></div>
+
+        <!-- 검색 및 필터 -->
+        <div class="search-filter-section">
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput"
+                    placeholder="곡 제목, 아티스트 검색..."
+                >
+                <button class="search-btn" onclick="searchMusic()">
+                    🔍 검색
+                </button>
+            </div>
+            
+            <div class="filter-tabs">
+                <div class="filter-tab active" data-filter="all">전체</div>
+                <div class="filter-tab" data-filter="recent">최신순</div>
+                <div class="filter-tab" data-filter="popular">인기순</div>
+                <div class="filter-tab" data-filter="cheap">저가순</div>
+                <div class="filter-tab" data-filter="expensive">고가순</div>
+            </div>
+        </div>
+
+        <!-- 음악 리스트 -->
+        <div id="musicContainer">
+            <!-- 로딩 상태 -->
+            <div class="loading-container" id="loadingContainer">
+                <div class="loading"></div>
+                <div class="loading-text">음악을 불러오는 중...</div>
+            </div>
+
+            <!-- 음악 그리드 -->
+            <div class="music-grid" id="musicGrid" style="display: none;">
+                <!-- 음악 카드들이 여기에 동적으로 추가됩니다 -->
+            </div>
+
+            <!-- 빈 상태 -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-state-icon">🎵</div>
+                <div class="empty-state-title">음악이 없습니다</div>
+                <div>첫 번째 음악을 업로드해보세요!</div>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination" id="pagination" style="display: none;">
+            <!-- 페이지네이션 버튼들이 여기에 동적으로 추가됩니다 -->
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Supabase 설정
+        const SUPABASE_URL = 'https://aoejmmcbrrcsievldbxi.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvZWptbWNicnJjc2lldmxkYnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MjcwNDQsImV4cCI6MjA3MzMwMzA0NH0.7d86lw9ABAn6G_cXvXjpdoOlqtW8K3FVCR43w70q4eY';
+        
+        let supabase;
+        let currentUser = null;
+        let allMusic = [];
+        let filteredMusic = [];
+        let currentFilter = 'all';
+        let currentPage = 1;
+        const itemsPerPage = 6;
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 탐색 페이지 로딩...');
+            
+            // Supabase 초기화
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            
+            // 사용자 인증 확인
+            await checkAuthStatus();
+            
+            // 이벤트 리스너 설정
+            setupEventListeners();
+            
+            // 음악 데이터 로드
+            await loadMusic();
+            
+            console.log('✅ 탐색 페이지 준비 완료');
+        });
+
+        // 인증 상태 확인
+        async function checkAuthStatus() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    showNotification('error', '로그인이 필요합니다.');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    return;
+                }
+                
+                currentUser = user;
+                console.log('✅ 로그인된 사용자:', user.email);
+                
+                // 사용자 정보 불러오기
+                await loadUserInfo();
+                
+            } catch (error) {
+                console.error('❌ 인증 확인 실패:', error);
+                showNotification('error', '인증 확인에 실패했습니다.');
+            }
+        }
+
+        // 사용자 정보 로드
+        async function loadUserInfo() {
+            try {
+                const { data: userData, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (!error && userData) {
+                    document.getElementById('coinBalance').textContent = userData.coin_balance || 0;
+                    
+                    // 프로필 아바타 설정
+                    const avatar = document.getElementById('profileAvatar');
+                    const username = userData.username || currentUser.email?.split('@')[0] || 'U';
+                    avatar.textContent = username.charAt(0).toUpperCase();
+                }
+            } catch (error) {
+                console.log('사용자 정보 로드 실패:', error);
+            }
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            // 검색 입력 이벤트
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchMusic();
+                }
+            });
+
+            // 필터 탭 이벤트
+            const filterTabs = document.querySelectorAll('.filter-tab');
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const filter = tab.dataset.filter;
+                    setActiveFilter(filter);
+                    applyFilter(filter);
+                });
+            });
+        }
+
+        // 음악 데이터 로드
+        async function loadMusic() {
+            try {
+                showLoading(true);
+                
+                console.log('📀 음악 데이터 로딩 중...');
+                
+                // songs와 artists를 JOIN하여 데이터 가져오기
+                const { data: musicData, error } = await supabase
+                    .from('songs')
+                    .select(`
+                        *,
+                        artists (
+                            artist_name,
+                            bio,
+                            avatar_url
+                        )
+                    `)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    throw error;
+                }
+
+                console.log('📀 로드된 음악 데이터:', musicData);
+                
+                allMusic = musicData || [];
+                filteredMusic = [...allMusic];
+                
+                if (allMusic.length === 0) {
+                    showEmptyState();
+                } else {
+                    renderMusic();
+                    renderPagination();
+                }
+
+            } catch (error) {
+                console.error('❌ 음악 로드 실패:', error);
+                showNotification('error', '음악 데이터를 불러오는데 실패했습니다.');
+                showEmptyState();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 음악 렌더링
+        function renderMusic() {
+            const musicGrid = document.getElementById('musicGrid');
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentMusic = filteredMusic.slice(startIndex, endIndex);
+
+            if (currentMusic.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            musicGrid.innerHTML = '';
+            
+            currentMusic.forEach(song => {
+                const musicCard = createMusicCard(song);
+                musicGrid.appendChild(musicCard);
+            });
+
+            // 그리드 표시
+            musicGrid.style.display = 'grid';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        // 음악 카드 생성
+        function createMusicCard(song) {
+            const card = document.createElement('div');
+            card.className = 'music-card';
+            
+            // 아티스트 이름 처리
+            const artistName = song.artists?.artist_name || '알 수 없는 아티스트';
+            
+            // 커버 이미지 처리
+            const coverImage = song.cover_image_url 
+                ? `<img src="${song.cover_image_url}" alt="${song.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`
+                : '';
+            
+            // 설명 처리 (없으면 기본 텍스트)
+            const description = song.description || '아직 설명이 없습니다.';
+            
+            card.innerHTML = `
+                <div class="music-cover">
+                    ${coverImage}
+                    <div class="cover-placeholder" style="${coverImage ? 'display: none;' : 'display: flex;'} align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 4rem;">
+                        🎵
+                    </div>
+                    <div class="play-overlay">
+                        <button class="play-button" onclick="playMusic('${song.id}', '${song.audio_url}')">
+                            ▶️
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="music-info">
+                    <div class="music-title">${song.title}</div>
+                    <div class="music-artist">by ${artistName}</div>
+                    <div class="music-description">${description}</div>
+                    
+                    <div class="music-stats">
+                        <div class="music-stat">
+                            <span>🎵</span>
+                            <span>${song.total_plays || 0} 재생</span>
+                        </div>
+                        <div class="music-stat">
+                            <span>📊</span>
+                            <span>${song.available_shares || 0}/${song.total_shares || 100} 지분</span>
+                        </div>
+                    </div>
+                    
+                    <div class="music-actions">
+                        <button class="invest-btn" onclick="investInSong('${song.id}')">
+                            💰 ${song.current_price || 1} 코인으로 투자
+                        </button>
+                        <button class="like-btn" onclick="toggleLike('${song.id}')">
+                            ❤️
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // 필터 적용
+        function applyFilter(filter) {
+            currentFilter = filter;
+            currentPage = 1;
+            
+            switch (filter) {
+                case 'recent':
+                    filteredMusic = [...allMusic].sort((a, b) => 
+                        new Date(b.created_at) - new Date(a.created_at)
+                    );
+                    break;
+                    
+                case 'popular':
+                    filteredMusic = [...allMusic].sort((a, b) => 
+                        (b.total_plays || 0) - (a.total_plays || 0)
+                    );
+                    break;
+                    
+                case 'cheap':
+                    filteredMusic = [...allMusic].sort((a, b) => 
+                        (a.current_price || 1) - (b.current_price || 1)
+                    );
+                    break;
+                    
+                case 'expensive':
+                    filteredMusic = [...allMusic].sort((a, b) => 
+                        (b.current_price || 1) - (a.current_price || 1)
+                    );
+                    break;
+                    
+                default: // 'all'
+                    filteredMusic = [...allMusic];
+                    break;
+            }
+            
+            renderMusic();
+            renderPagination();
+        }
+
+        // 활성 필터 설정
+        function setActiveFilter(filter) {
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+        }
+
+        // 검색 기능
+        function searchMusic() {
+            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+            
+            if (!searchTerm) {
+                applyFilter(currentFilter);
+                return;
+            }
+            
+            filteredMusic = allMusic.filter(song => {
+                const title = song.title?.toLowerCase() || '';
+                const artist = song.artists?.artist_name?.toLowerCase() || '';
+                const description = song.description?.toLowerCase() || '';
+                
+                return title.includes(searchTerm) || 
+                       artist.includes(searchTerm) || 
+                       description.includes(searchTerm);
+            });
+            
+            currentPage = 1;
+            renderMusic();
+            renderPagination();
+            
+            showNotification('info', `"${document.getElementById('searchInput').value}" 검색 결과: ${filteredMusic.length}곡`);
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredMusic.length / itemsPerPage);
+            
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+            
+            pagination.style.display = 'flex';
+            pagination.innerHTML = '';
+            
+            // 이전 페이지 버튼
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-btn';
+            prevBtn.textContent = '← 이전';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => goToPage(currentPage - 1);
+            pagination.appendChild(prevBtn);
+            
+            // 페이지 번호들
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                    pageBtn.textContent = i;
+                    pageBtn.onclick = () => goToPage(i);
+                    pagination.appendChild(pageBtn);
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    dots.style.padding = '0.5rem';
+                    dots.style.color = 'var(--text-secondary)';
+                    pagination.appendChild(dots);
+                }
+            }
+            
+            // 다음 페이지 버튼
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-btn';
+            nextBtn.textContent = '다음 →';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => goToPage(currentPage + 1);
+            pagination.appendChild(nextBtn);
+        }
+
+        // 페이지 이동
+        function goToPage(page) {
+            if (page < 1 || page > Math.ceil(filteredMusic.length / itemsPerPage)) {
+                return;
+            }
+            
+            currentPage = page;
+            renderMusic();
+            renderPagination();
+            
+            // 페이지 상단으로 스크롤
+            document.querySelector('.page-header').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        // 음악 재생
+        function playMusic(songId, audioUrl) {
+            console.log('🎵 음악 재생:', songId, audioUrl);
+            
+            // 실제 구현에서는 오디오 플레이어를 띄우고 재생
+            // 현재는 알림으로 대체
+            showNotification('info', '🎵 음악 재생 기능은 Day 3에서 구현됩니다!');
+            
+            // TODO: Day 3에서 실제 재생 기능 구현
+            // - HTML5 Audio 플레이어 생성
+            // - 재생 시간 추적 (30초 이상 시 코인 지급)
+            // - listening_history 기록
+        }
+
+        // 투자 기능
+        function investInSong(songId) {
+            console.log('💰 투자하기:', songId);
+            
+            // 실제 구현에서는 투자 모달을 띄우고 처리
+            showNotification('info', '💰 투자 기능은 Day 4에서 구현됩니다!');
+            
+            // TODO: Day 4에서 실제 투자 기능 구현
+            // - 투자 모달 띄우기
+            // - 코인 잔액 확인
+            // - 지분 구매 처리
+        }
+
+        // 좋아요 토글
+        function toggleLike(songId) {
+            const button = event.target;
+            
+            if (button.classList.contains('liked')) {
+                button.classList.remove('liked');
+                button.innerHTML = '❤️';
+                showNotification('info', '좋아요를 취소했습니다.');
+            } else {
+                button.classList.add('liked');
+                button.innerHTML = '💖';
+                showNotification('success', '좋아요를 추가했습니다!');
+            }
+            
+            // TODO: 실제 구현에서는 데이터베이스에 좋아요 상태 저장
+        }
+
+        // 로딩 상태 관리
+        function showLoading(show) {
+            const loadingContainer = document.getElementById('loadingContainer');
+            const musicGrid = document.getElementById('musicGrid');
+            const emptyState = document.getElementById('emptyState');
+            const pagination = document.getElementById('pagination');
+            
+            if (show) {
+                loadingContainer.style.display = 'block';
+                musicGrid.style.display = 'none';
+                emptyState.style.display = 'none';
+                pagination.style.display = 'none';
+            } else {
+                loadingContainer.style.display = 'none';
+            }
+        }
+
+        // 빈 상태 표시
+        function showEmptyState() {
+            document.getElementById('loadingContainer').style.display = 'none';
+            document.getElementById('musicGrid').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('pagination').style.display = 'none';
+        }
+
+        // 알림 표시
+        function showNotification(type, message) {
+            console.log(`📢 알림: [${type}] ${message}`);
+            const notification = document.getElementById('notification');
+            if (notification) {
+                notification.className = `notification ${type}`;
+                notification.innerHTML = message;
+                notification.style.display = 'block';
+
+                // 5초 후 자동 숨김
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>
