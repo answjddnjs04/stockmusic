@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 음악 업로드 - 인디 뮤직 플랫폼</title>
+    <style>
+        /* CSS 변수 - 60-30-10 색상 규칙 */
+        :root {
+            /* 배경색 60% */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-surface: #2a2a2a;
+
+            /* 보조색 30% */
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border: #404040;
+
+            /* 강조색 10% */
+            --accent-gold: #ffd700;
+            --accent-blue: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-red: #ff4757;
+            --accent-purple: #9c88ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* 헤더 */
+        .header {
+            background: var(--bg-secondary);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            color: var(--accent-blue);
+        }
+
+        .nav-item.active {
+            color: var(--accent-blue);
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-blue);
+            border-radius: 1px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .coin-balance {
+            background: var(--bg-surface);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            color: var(--accent-gold);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 메인 컨테이너 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* 페이지 타이틀 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 업로드 폼 */
+        .upload-form {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* 파일 업로드 */
+        .file-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload-area:hover,
+        .file-upload-area.dragover {
+            border-color: var(--accent-blue);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .file-upload-area.has-file {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .file-upload-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-upload-content {
+            pointer-events: none;
+        }
+
+        .file-upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--accent-blue);
+        }
+
+        .file-upload-text {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .file-upload-hint {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .file-info {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-surface);
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .file-info.show {
+            display: flex;
+        }
+
+        .file-info-icon {
+            font-size: 2rem;
+        }
+
+        .file-info-details h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .file-info-details p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .file-remove {
+            background: var(--accent-red);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-left: auto;
+        }
+
+        /* 이미지 업로드 */
+        .image-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-upload-area:hover,
+        .image-upload-area.dragover {
+            border-color: var(--accent-blue);
+        }
+
+        .image-upload-area.has-image {
+            border-color: var(--accent-green);
+        }
+
+        .image-upload-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* 버튼 */
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-blue);
+            background: var(--bg-secondary);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        /* 진행률 바 */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-surface);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .progress-bar.show {
+            display: block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* 알림 */
+        .notification {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .notification.success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .notification.error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .notification.info {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        /* 로딩 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--accent-blue);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .nav-menu {
+                gap: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .upload-form {
+                padding: 1.5rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <div class="header">
+        <div class="header-content">
+            <a href="main.html" class="logo">🎵 인디 뮤직</a>
+            
+            <nav class="nav-menu">
+                <a href="main.html" class="nav-item">홈</a>
+                <a href="#" class="nav-item">탐색</a>
+                <a href="#" class="nav-item active">업로드</a>
+                <a href="#" class="nav-item">투자</a>
+                <a href="#" class="nav-item">내 라이브러리</a>
+            </nav>
+            
+            <div class="user-info">
+                <div class="coin-balance">
+                    💰 <span id="coinBalance">1,250</span> 코인
+                </div>
+                <div class="profile-avatar">U</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 컨테이너 -->
+    <div class="container">
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+            <h1 class="page-title">🎵 음악 업로드</h1>
+            <p class="page-subtitle">
+                당신의 음악을 세상에 선보이고, 팬들의 투자를 받아보세요!<br>
+                업로드된 음악은 자동으로 100개의 지분으로 나뉘어집니다.
+            </p>
+        </div>
+
+        <!-- 알림 영역 -->
+        <div id="notification"></div>
+
+        <!-- 업로드 폼 -->
+        <form class="upload-form" id="uploadForm">
+            <!-- 기본 정보 섹션 -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    📝 기본 정보
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="songTitle">곡 제목 *</label>
+                    <input 
+                        type="text" 
+                        id="songTitle" 
+                        name="songTitle" 
+                        class="form-input" 
+                        placeholder="멋진 곡 제목을 입력해주세요"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="artistName">아티스트명 *</label>
+                    <input 
+                        type="text" 
+                        id="artistName" 
+                        name="artistName" 
+                        class="form-input" 
+                        placeholder="아티스트 이름 또는 그룹명"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="description">곡 설명</label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        class="form-input form-textarea" 
+                        placeholder="이 곡에 대한 이야기를 들려주세요... (선택사항)"
+                    ></textarea>
+                </div>
+            </div>
+
+            <!-- 음악 파일 업로드 -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    🎵 음악 파일
+                </div>
+                
+                <div class="file-upload-area" id="audioUploadArea">
+                    <input 
+                        type="file" 
+                        id="audioFile" 
+                        name="audioFile" 
+                        class="file-upload-input"
+                        accept="audio/*"
+                        required
+                    >
+                    <div class="file-upload-content">
+                        <div class="file-upload-icon">🎵</div>
+                        <div class="file-upload-text">음악 파일을 선택하거나 드래그하세요</div>
+                        <div class="file-upload-hint">지원 형식: MP3, WAV, M4A (최대 10MB)</div>
+                    </div>
+                </div>
+                
+                <div class="file-info" id="audioFileInfo">
+                    <div class="file-info-icon">🎵</div>
+                    <div class="file-info-details">
+                        <h4 id="audioFileName"></h4>
+                        <p id="audioFileSize"></p>
+                    </div>
+                    <button type="button" class="file-remove" onclick="removeAudioFile()">×</button>
+                </div>
+            </div>
+
+            <!-- 커버 이미지 업로드 -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    🖼️ 커버 이미지 (선택사항)
+                </div>
+                
+                <div class="image-upload-area" id="imageUploadArea">
+                    <input 
+                        type="file" 
+                        id="coverImage" 
+                        name="coverImage" 
+                        class="file-upload-input"
+                        accept="image/*"
+                    >
+                    <div class="image-upload-overlay">
+                        <div class="file-upload-icon">🖼️</div>
+                        <div class="file-upload-text">커버 이미지 선택</div>
+                        <div class="file-upload-hint">JPG, PNG (최대 5MB)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 진행률 바 -->
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <!-- 버튼 그룹 -->
+            <div class="btn-group">
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                    🔄 초기화
+                </button>
+                <button type="submit" class="btn btn-primary" id="uploadButton">
+                    🚀 업로드하기
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Supabase 설정
+        const SUPABASE_URL = 'https://aoejmmcbrrcsievldbxi.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvZWptbWNicnJjc2lldmxkYnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MjcwNDQsImV4cCI6MjA3MzMwMzA0NH0.7d86lw9ABAn6G_cXvXjpdoOlqtW8K3FVCR43w70q4eY';
+        
+        let supabase;
+        let currentUser = null;
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 업로드 페이지 로딩...');
+            
+            // Supabase 초기화
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            
+            // 사용자 인증 확인
+            await checkAuthStatus();
+            
+            // 이벤트 리스너 설정
+            setupEventListeners();
+            
+            console.log('✅ 업로드 페이지 준비 완료');
+        });
+
+        // 인증 상태 확인
+        async function checkAuthStatus() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    showNotification('error', '로그인이 필요합니다.');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    return;
+                }
+                
+                currentUser = user;
+                console.log('✅ 로그인된 사용자:', user.email);
+                
+                // 사용자 정보 불러오기
+                await loadUserInfo();
+                
+            } catch (error) {
+                console.error('❌ 인증 확인 실패:', error);
+                showNotification('error', '인증 확인에 실패했습니다.');
+            }
+        }
+
+        // 사용자 정보 로드
+        async function loadUserInfo() {
+            try {
+                const { data: userData, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (!error && userData) {
+                    document.getElementById('coinBalance').textContent = userData.coin_balance || 0;
+                }
+            } catch (error) {
+                console.log('사용자 정보 로드 실패:', error);
+            }
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            const uploadForm = document.getElementById('uploadForm');
+            const audioUploadArea = document.getElementById('audioUploadArea');
+            const imageUploadArea = document.getElementById('imageUploadArea');
+            const audioFile = document.getElementById('audioFile');
+            const coverImage = document.getElementById('coverImage');
+
+            // 폼 제출
+            uploadForm.addEventListener('submit', handleFormSubmit);
+
+            // 드래그 앤 드롭 - 오디오
+            audioUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                audioUploadArea.classList.add('dragover');
+            });
+
+            audioUploadArea.addEventListener('dragleave', () => {
+                audioUploadArea.classList.remove('dragover');
+            });
+
+            audioUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                audioUploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    audioFile.files = files;
+                    handleAudioFileSelect(files[0]);
+                }
+            });
+
+            // 드래그 앤 드롭 - 이미지
+            imageUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                imageUploadArea.classList.add('dragover');
+            });
+
+            imageUploadArea.addEventListener('dragleave', () => {
+                imageUploadArea.classList.remove('dragover');
+            });
+
+            imageUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                imageUploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    coverImage.files = files;
+                    handleImageFileSelect(files[0]);
+                }
+            });
+
+            // 파일 선택
+            audioFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleAudioFileSelect(e.target.files[0]);
+                }
+            });
+
+            coverImage.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleImageFileSelect(e.target.files[0]);
+                }
+            });
+        }
+
+        // 오디오 파일 선택 처리
+        function handleAudioFileSelect(file) {
+            console.log('🎵 오디오 파일 선택:', file.name);
+            
+            // 파일 크기 확인 (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showNotification('error', '파일 크기가 10MB를 초과합니다.');
+                return;
+            }
+
+            // 파일 형식 확인
+            if (!file.type.startsWith('audio/')) {
+                showNotification('error', '오디오 파일만 업로드 가능합니다.');
+                return;
+            }
+
+            // UI 업데이트
+            const uploadArea = document.getElementById('audioUploadArea');
+            const fileInfo = document.getElementById('audioFileInfo');
+            const fileName = document.getElementById('audioFileName');
+            const fileSize = document.getElementById('audioFileSize');
+
+            uploadArea.classList.add('has-file');
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.add('show');
+
+            showNotification('success', '🎵 오디오 파일이 선택되었습니다!');
+        }
+
+        // 이미지 파일 선택 처리
+        function handleImageFileSelect(file) {
+            console.log('🖼️ 이미지 파일 선택:', file.name);
+            
+            // 파일 크기 확인 (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('error', '이미지 크기가 5MB를 초과합니다.');
+                return;
+            }
+
+            // 파일 형식 확인
+            if (!file.type.startsWith('image/')) {
+                showNotification('error', '이미지 파일만 업로드 가능합니다.');
+                return;
+            }
+
+            // 이미지 미리보기
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const uploadArea = document.getElementById('imageUploadArea');
+                uploadArea.style.backgroundImage = `url(${e.target.result})`;
+                uploadArea.classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+
+            showNotification('success', '🖼️ 커버 이미지가 선택되었습니다!');
+        }
+
+        // 오디오 파일 제거
+        function removeAudioFile() {
+            const audioFile = document.getElementById('audioFile');
+            const uploadArea = document.getElementById('audioUploadArea');
+            const fileInfo = document.getElementById('audioFileInfo');
+
+            audioFile.value = '';
+            uploadArea.classList.remove('has-file');
+            fileInfo.classList.remove('show');
+
+            showNotification('info', '오디오 파일이 제거되었습니다.');
+        }
+
+        // 폼 제출 처리
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const uploadButton = document.getElementById('uploadButton');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+
+            try {
+                // 로딩 상태
+                uploadButton.innerHTML = '<div class="loading"></div> 업로드 중...';
+                uploadButton.disabled = true;
+                progressBar.classList.add('show');
+
+                // 폼 데이터 수집
+                const formData = new FormData();
+                const songTitle = document.getElementById('songTitle').value.trim();
+                const artistName = document.getElementById('artistName').value.trim();
+                const description = document.getElementById('description').value.trim();
+                const audioFile = document.getElementById('audioFile').files[0];
+                const coverImage = document.getElementById('coverImage').files[0];
+
+                // 필수 필드 검증
+                if (!songTitle || !artistName || !audioFile) {
+                    throw new Error('필수 정보를 모두 입력해주세요.');
+                }
+
+                console.log('📝 업로드 데이터:', {
+                    songTitle,
+                    artistName,
+                    description: description || '설명 없음',
+                    audioFile: audioFile.name,
+                    coverImage: coverImage?.name || '없음'
+                });
+
+                // 1. 아티스트 정보 저장/조회
+                progressFill.style.width = '20%';
+                const artistId = await handleArtistData
